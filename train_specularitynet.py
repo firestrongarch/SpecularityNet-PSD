@@ -10,6 +10,9 @@ import data
 from data import spec
 from torch.utils.data import DataLoader
 
+from pathlib import Path
+PSD_path = Path('~/datasets/PSD').expanduser()
+
 opt: Namespace = TrainOptions().parse()
 
 cudnn.benchmark = True
@@ -31,15 +34,15 @@ if opt.debug:
     # opt.resume_epoch = True
 
 #dataset_filtered &dataset_appended: random polarization angles
-dataset_filtered = spec.SpecDataset(opt,'~/datasets/PSD/PSD_Train',imgsize='small')
+dataset_filtered = spec.SpecDataset(opt,f'{PSD_path}/PSD_Train',imgsize='small')
 dataloader_filtered = DataLoader(dataset_filtered,opt.batchSize,num_workers=opt.nThreads,shuffle=not opt.serial_batches,drop_last=False)
 #dataset_appended = spec.SpecDataset(opt,'/PSD_Dataset/appended',imgsize='small')
 #dataloader_appended = DataLoader(dataset_appended,opt.batchSize,num_workers=opt.nThreads,shuffle=not opt.serial_batches,drop_last=False)
 #dataset_aligned: fixed polarization angles
-dataset_aligned = spec.GroupDataset(opt,'~/datasets/PSD/PSD_Train/PSD_Train_group/aligned',imgsize='small',groups=800,idxs=12,idxd=1,idxis=[7],name="group-{:04d}-idx-{:02d}.png",freq=opt.freq,any_valid=False)
+dataset_aligned = spec.GroupDataset(opt,f'{PSD_path}/PSD_Train/PSD_Train_group/aligned',imgsize='small',groups=800,idxs=12,idxd=1,idxis=[7],name="group-{:04d}-idx-{:02d}.png",freq=opt.freq,any_valid=False)
 dataloader_aligned = DataLoader(dataset_aligned,opt.batchSize,num_workers=opt.nThreads,shuffle=not opt.serial_batches,drop_last=False)
 
-dataset_val = spec.GroupDataset(opt,'~/datasets/PSD/PSD_val/PSD_val_group',imgsize='small',groups=range(1001,1100),idxs=12,idxd=1,idxis=[7],name="group-{:04d}-idx-{:02d}.png",freq=opt.freq,any_valid=False)
+dataset_val = spec.GroupDataset(opt,f'{PSD_path}/PSD_val/PSD_val_group',imgsize='small',groups=range(1001,1100),idxs=12,idxd=1,idxis=[7],name="group-{:04d}-idx-{:02d}.png",freq=opt.freq,any_valid=False)
 dataloader_val = DataLoader(dataset_val,opt.batchSize,num_workers=opt.nThreads,shuffle=not opt.serial_batches,drop_last=False)
 
 

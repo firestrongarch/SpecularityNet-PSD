@@ -195,8 +195,10 @@ def write_loss(writer, prefix, avg_meters, iteration):
 """progress bar"""
 import socket
 
-_, term_width = os.popen('stty size', 'r').read().split()
-term_width = int(term_width)
+import shutil
+
+term_size = shutil.get_terminal_size(fallback=(80, 24))
+term_width = term_size.columns
 
 TOTAL_BAR_LENGTH = 65.
 last_time = time.time()

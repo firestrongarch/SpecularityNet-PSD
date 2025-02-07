@@ -2,9 +2,13 @@
 此分支为 [SpecularityNet-PSD](https://github.com/jianweiguo/SpecularityNet-PSD) 的torch更新
 
 # 依赖
+示例 `pip install opencv-python -i https://pypi.tuna.tsinghua.edu.cn/simple`
 ```
 opencv-python
 tensorboardX
+scikit-image
+dominate
+matplotlib
 ```
 
 # 训练
