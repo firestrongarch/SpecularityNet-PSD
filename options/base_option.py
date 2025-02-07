@@ -17,7 +17,7 @@ class BaseOptions():
         self.parser.add_argument('--gpu_ids', type=str, default='0,7', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
         self.parser.add_argument('--model', type=str, default='specularitynet_model', help='chooses which model to use.', choices=model_names)
         self.parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
-        self.parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
+        self.parser.add_argument('--resume', '-r', default= True,action='store_true', help='resume from checkpoint')
         self.parser.add_argument('--resume_epoch', '-re', type=int, default=None, help='checkpoint to use. (default: latest')
         self.parser.add_argument('--seed', type=int, default=2018, help='random seed to use. Default=2018')
 

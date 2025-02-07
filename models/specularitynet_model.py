@@ -160,17 +160,17 @@ class specularitynetBase(BaseModel):
                     else:
                         Image.fromarray(result).save(join(savedir, '{}_result_{}.png'.format(fn, self.opt.name)))
                     # if not os.path.exists(join(savedir, '{}_input.png'.format(fn))):
-                    Image.fromarray(_input).save(join(savedir,'{}_input.png'.format(fn)))
-                    if not mask.size == 0:
-                        Image.fromarray(mask).save(join(savedir, '{}_mask.png'.format(fn)))
-                    if not detect.size == 0:
-                        spec = np.uint8(np.clip(np.int32(_input)-np.int32(result),0,255))
-                        if self.opt.suffix is not None:
-                            Image.fromarray(detect).save(join(savedir,'{}_detect_{}_{}.png'.format(fn, self.opt.name, self.opt.suffix)))
-                            Image.fromarray(spec).convert('L').save(join(savedir,'{}_specular_{}_{}.png'.format(fn, self.opt.name, self.opt.suffix)))
-                        else:
-                            Image.fromarray(detect).save(join(savedir, '{}_detect_{}.png'.format(fn, self.opt.name)))
-                            Image.fromarray(spec).convert('L').save(join(savedir, '{}_specular_{}.png'.format(fn, self.opt.name)))
+                    # Image.fromarray(_input).save(join(savedir,'{}_input.png'.format(fn)))
+                    # if not mask.size == 0:
+                    #     Image.fromarray(mask).save(join(savedir, '{}_mask.png'.format(fn)))
+                    # if not detect.size == 0:
+                    #     spec = np.uint8(np.clip(np.int32(_input)-np.int32(result),0,255))
+                    #     if self.opt.suffix is not None:
+                    #         Image.fromarray(detect).save(join(savedir,'{}_detect_{}_{}.png'.format(fn, self.opt.name, self.opt.suffix)))
+                    #         Image.fromarray(spec).convert('L').save(join(savedir,'{}_specular_{}_{}.png'.format(fn, self.opt.name, self.opt.suffix)))
+                    #     else:
+                    #         Image.fromarray(detect).save(join(savedir, '{}_detect_{}.png'.format(fn, self.opt.name)))
+                    #         Image.fromarray(spec).convert('L').save(join(savedir, '{}_specular_{}.png'.format(fn, self.opt.name)))
 
 class specularitynetModel(specularitynetBase):
     def name(self):
@@ -185,6 +185,10 @@ class specularitynetModel(specularitynetBase):
         print('--------------------- Model ---------------------')
         print('##################### NetG #####################')
         networks.print_network(self.net_i)
+        
+        # dummy_input = torch.randn(1, 3, 50, 50).cuda()
+        # torch.onnx.export(self.net_i, dummy_input, "onnx_spec.onnx", verbose=True)
+        
         if self.isTrain and self.opt.lambda_gan > 0:
             print('##################### NetD #####################')
             networks.print_network(self.netD)
@@ -326,6 +330,8 @@ class specularitynetModel(specularitynetBase):
         # without edge
         input_i = self.input
 
+        print(input_i.shape)
+        
         if self.vgg is not None:
             hypercolumn = self.vgg(self.input)
             _, C, H, W = self.input.shape
@@ -412,6 +418,7 @@ class specularitynetModel(specularitynetBase):
             model.net_i.load_state_dict(state_dict['icnn'])
             model.epoch = state_dict['epoch']
             model.iterations = state_dict['iterations']
+            
             # if model.isTrain:
             #     model.optimizer_G.load_state_dict(state_dict['opt_g'])
 
@@ -420,7 +427,7 @@ class specularitynetModel(specularitynetBase):
                 print('Resume netD ...')
                 model.netD.load_state_dict(state_dict['netD'])
                 model.optimizer_D.load_state_dict(state_dict['opt_d'])
-            
+        
         print('Resume from epoch %d, iteration %d' % (model.epoch, model.iterations))
         return state_dict
 

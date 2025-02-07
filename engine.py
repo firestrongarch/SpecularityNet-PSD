@@ -111,6 +111,7 @@ class Engine(object):
     def test(self, test_loader, savedir=None, **kwargs):
         model = self.model
         opt = self.opt
+        
         with torch.no_grad():
             for i, data in enumerate(test_loader):
                 model.test(data, savedir=savedir, **kwargs)

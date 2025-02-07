@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import math
+import cv2
 
 import torch
 import numpy as np
