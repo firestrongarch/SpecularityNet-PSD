@@ -330,8 +330,6 @@ class specularitynetModel(specularitynetBase):
         # without edge
         input_i = self.input
 
-        print(input_i.shape)
-        
         if self.vgg is not None:
             hypercolumn = self.vgg(self.input)
             _, C, H, W = self.input.shape

@@ -5,6 +5,7 @@ import time
 import os
 import sys
 from os.path import join
+from tqdm import tqdm  # 导入 tqdm
 from util.visualizer import Visualizer
 
 
@@ -35,14 +36,22 @@ class Engine(object):
             self.visualizer = Visualizer(opt)
 
     def train(self, train_loader, **kwargs):
-        print('\nEpoch: %d' % self.epoch)
         avg_meters = util.AverageMeters()
         opt = self.opt
         model = self.model
         epoch = self.epoch
 
         epoch_start_time = time.time()
-        for i, data in enumerate(train_loader):
+        
+        # 使用 tqdm 包装数据加载器，并设置进度条格式
+        train_loader_tqdm = tqdm(
+            train_loader, 
+            desc=f'Epoch {epoch}', 
+            dynamic_ncols=True, 
+            bar_format='{l_bar}{bar:20}{r_bar}'
+        )
+        
+        for i, data in enumerate(train_loader_tqdm):
             iter_start_time = time.time()
             iterations = self.iterations
             
@@ -51,7 +60,10 @@ class Engine(object):
             
             errors = model.get_current_errors()
             avg_meters.update(errors)
-            util.progress_bar(i, len(train_loader), str(avg_meters))
+            
+            # 动态更新进度条的统计信息（保留4位小数）
+            current_metrics = {k: round(avg_meters[k], 4) for k in avg_meters.keys()}
+            train_loader_tqdm.set_postfix(current_metrics)
             
             if not opt.no_log:
                 util.write_loss(self.writer, 'train', avg_meters, iterations)
@@ -65,8 +77,6 @@ class Engine(object):
 
             self.iterations += 1
     
-        # self.epoch += 1
-
         if not self.opt.no_log:
             if (self.epoch+1) % opt.save_epoch_freq == 0:
                 print('saving the model at epoch %d, iters %d' %
@@ -79,21 +89,28 @@ class Engine(object):
 
             print('Time Taken: %d sec' %
                 (time.time() - epoch_start_time))
-                
-        # model.update_learning_rate()
-        # train_loader.reset()
 
     def eval(self, val_loader, dataset_name, savedir=None, loss_key=None, **kwargs):
-        
         avg_meters = util.AverageMeters()
         model = self.model
         opt = self.opt
+        
+        # 使用 tqdm 包装验证数据加载器
+        val_loader_tqdm = tqdm(
+            val_loader, 
+            desc=f'Eval {dataset_name}', 
+            dynamic_ncols=True,
+            bar_format='{l_bar}{bar:20}{r_bar}'
+        )
+        
         with torch.no_grad():
-            for i, data in enumerate(val_loader):                
+            for i, data in enumerate(val_loader_tqdm):                
                 index = model.eval(data, savedir=savedir, **kwargs)
                 avg_meters.update(index)
                 
-                util.progress_bar(i, len(val_loader), str(avg_meters))
+                # 动态更新指标（保留4位小数）
+                current_metrics = {k: round(avg_meters[k], 4) for k in avg_meters.keys()}
+                val_loader_tqdm.set_postfix(current_metrics)
                 
         if not opt.no_log:
             util.write_loss(self.writer, join('eval', dataset_name), avg_meters, self.epoch)
@@ -112,10 +129,19 @@ class Engine(object):
         model = self.model
         opt = self.opt
         
+        # 使用 tqdm 包装测试数据加载器
+        test_loader_tqdm = tqdm(
+            test_loader, 
+            desc='Testing', 
+            dynamic_ncols=True,
+            bar_format='{l_bar}{bar:20}{r_bar}'
+        )
+        
         with torch.no_grad():
-            for i, data in enumerate(test_loader):
+            for i, data in enumerate(test_loader_tqdm):
                 model.test(data, savedir=savedir, **kwargs)
-                util.progress_bar(i, len(test_loader))
+                # 可以添加附加信息（例如：当前处理文件名）
+                # test_loader_tqdm.set_postfix(file_name=data['file_name'][0])
 
     @property
     def iterations(self):

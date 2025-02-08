@@ -9,14 +9,37 @@ tensorboardX
 scikit-image
 dominate
 matplotlib
+tqdm
 ```
 
 # 训练
 ```sh
-CUDA_VISIBLE_DEVICES=1 python train_specularitynet.py --name refined --inet refined --iters 1 --suffix iters1 --enhance de --freq 0.25 --noise True --lambda_coarse 0.5 --lambda_detect 1.0 --batchSize 4 --nThreads 24 --fliplr 0.5 --flipud 0.5
+python train_specularitynet.py --name refined --inet refined --iters 1 --suffix iters1 --enhance de --freq 0.25 --noise True --lambda_coarse 0.5 --lambda_detect 1.0 --batchSize 1 --nThreads 2 --fliplr 0.5 --flipud 0.5
 ```
+
+**显存相关**：调整batchSize
+**内存相关**：调整nThreads
+**PSD数据集需要修改路径，修改后**：
+```sh
+├───PSD_Test
+│   ├───PSD_Test_diffuse
+│   ├───PSD_Test_group
+│   └───PSD_Test_specular
+├───PSD_Train
+│   ├───nospec
+│   ├───PSD_Train_group
+│   │   ├───01
+│   │   ├───aligned
+│   │   └───unaligned
+│   └───spec
+└───PSD_val
+    ├───PSD_val_diffuse
+    ├───PSD_val_group
+    └───PSD_val_specular
+```
+
 
 # 测试
 ```sh
-CUDA_VISIBLE_DEVICES=0 python test_specularitynet.py -r --name refined --inet refined --iters 1 --suffix iters1 --enhance de --batchSize 16 --nThreads 32
+python test_specularitynet.py -r --name refined --inet refined --iters 1 --suffix iters1 --enhance de --batchSize 2 --nThreads 2
 ```

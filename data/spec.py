@@ -18,7 +18,7 @@ class SpecDataset(torch.utils.data.Dataset):
         self.fnsA = sorted(os.listdir(join(datadir,dirA)))
         #self.fnsB = sorted(os.listdir(join(datadir,dirB)))
         self.fnsB = self.fnsA
-        self.fnsC = sorted(os.listdir(join(datadir,dirC)))
+        # self.fnsC = sorted(os.listdir(join(datadir,dirC)))
         self.imgsize = imgsize
         # np.random.seed(0)
         print('Load {} items in {} ...'.format(len(self.fnsA),datadir))
@@ -29,7 +29,7 @@ class SpecDataset(torch.utils.data.Dataset):
         fnC = self.fnsC[index]
         t_img = cv2.imread(join(self.datadir, self.dirB, fnB))
         m_img = cv2.imread(join(self.datadir, self.dirA, fnA))
-        score = cv2.imread(join(self.datadir, self.dirC, fnC))
+        # score = cv2.imread(join(self.datadir, self.dirC, fnC))
         # print(self.imgsize)
         if np.random.rand() < self.opt.fliplr:
             t_img = cv2.flip(t_img,1)
@@ -58,9 +58,9 @@ class SpecDataset(torch.utils.data.Dataset):
 
         t_img = cv2.cvtColor(t_img,cv2.COLOR_BGR2RGB)
         m_img = cv2.cvtColor(m_img,cv2.COLOR_BGR2RGB)
-        score = cv2.cvtColor(score,cv2.COLOR_BGR2RGB)
+        # score = cv2.cvtColor(score,cv2.COLOR_BGR2RGB)
 
-        score = np.transpose(np.float32(score)/255.0,(2,0,1))
+        # score = np.transpose(np.float32(score)/255.0,(2,0,1))
         M = np.transpose(np.float32(m_img)/255.0,(2,0,1))
         T = np.transpose(np.float32(t_img)/255.0,(2,0,1))
         delta = M-T
@@ -69,7 +69,7 @@ class SpecDataset(torch.utils.data.Dataset):
         if self.opt.noise:
             M = M+np.random.normal(0,2/255.0,M.shape).astype(np.float32)
             #T = T+np.random.normal(0,1/255.0,T.shape).astype(np.float32)
-        data = {'input': M,  'target_t': T, 'fn': fnA[:-4], 'mask':mask ,'score':score}
+        data = {'input': M,  'target_t': T, 'fn': fnA[:-4], 'mask':mask }
         return data
 
     def __len__(self):
