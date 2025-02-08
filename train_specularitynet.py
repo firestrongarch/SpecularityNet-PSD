@@ -18,21 +18,22 @@ opt: Namespace = TrainOptions().parse()
 cudnn.benchmark = True
 
 opt.display_freq = 10
+opt.debug = True
 
 if opt.debug:
-    opt.display_id = 1
-    opt.display_freq = 20
-    opt.print_freq = 20
-    opt.nEpochs = 40
-    opt.max_dataset_size = 100
-    opt.no_log = False
-    opt.nThreads = 0
+    opt.nEpochs = 40 # epochs总数
+    opt.no_log = False #保存log
+    opt.nThreads = 0 # 线程数
+    opt.resume = False # 是否恢复
+    # opt.resume_epoch = 10 # 从epoch恢复
+    opt.no_verbose = True # 是否打印net
+
     opt.decay_iter = 0
     opt.serial_batches = True
     opt.no_flip = True
+    opt.max_dataset_size = 100
 
-    # opt.resume_epoch = True
-opt.resume = False
+
 filtered_path = Path(PSD_path,'PSD_Train')
 #dataset_filtered &dataset_appended: random polarization angles
 dataset_filtered = spec.SpecDataset(opt, filtered_path, imgsize='small')
