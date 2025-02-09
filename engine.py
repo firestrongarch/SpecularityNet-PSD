@@ -46,7 +46,6 @@ class Engine(object):
         # 使用 tqdm 包装数据加载器，并设置进度条格式
         train_loader_tqdm = tqdm(
             train_loader, 
-            desc=f'Epoch {epoch}', 
             dynamic_ncols=True, 
             bar_format='{l_bar}{bar:20}{r_bar}'
         )

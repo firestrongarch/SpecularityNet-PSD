@@ -24,7 +24,7 @@ if opt.debug:
     opt.nEpochs = 40 # epochs总数
     opt.no_log = False #保存log
     opt.nThreads = 0 # 线程数
-    opt.resume = False # 是否恢复
+    opt.resume = True # 是否恢复
     # opt.resume_epoch = 10 # 从epoch恢复
     opt.no_verbose = True # 是否打印net
 
@@ -72,10 +72,10 @@ if __name__ == '__main__':
             lr_now = max(1e-5,lr*0.8**((engine.epoch+1)/5))
             set_learning_rate(lr_now)
         if True:
-            print("coast training ...")
+            print("epoch:",engine.epoch + 1) 
             engine.train(dataloader_aligned)
             engine.train(dataloader_filtered)
-            engine.train(dataloader_val)
+            # engine.train(dataloader_val)
             # engine.train(dataloader_appended)
             # engine.train(dataloader_train)
             engine.epoch += 1

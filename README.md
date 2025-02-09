@@ -17,7 +17,7 @@ tqdm
 python train_specularitynet.py --name refined --inet refined --iters 1 --suffix iters1 --enhance de --freq 0.25 --noise True --lambda_coarse 0.5 --lambda_detect 1.0 --batchSize 2 --nThreads 0 --fliplr 0.5 --flipud 0.5
 ```
 
-**显存相关**：调整batchSize, windows下显存不足时不会报错但会直接卡住，linux下会报错。
+**显存相关**：调整batchSize
 **内存相关**：调整nThreads
 **PSD数据集需要修改路径，修改后**：
 ```sh
@@ -38,6 +38,7 @@ python train_specularitynet.py --name refined --inet refined --iters 1 --suffix 
     └───PSD_val_specular
 ```
 
+**恢复训练**：根据`--name`在`./checkpoints`下建立文件夹，比如`checkpoints/refined/specularitynet_latest.pt`。
 
 # 测试
 ```sh

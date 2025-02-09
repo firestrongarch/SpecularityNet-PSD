@@ -8,17 +8,15 @@ cv2.setNumThreads(0)
 cv2.ocl.setUseOpenCL(False)
 
 class SpecDataset(torch.utils.data.Dataset):
-    def __init__(self, opt, datadir, dirA='spec', dirB='nospec',dirC="score",imgsize=None):
+    def __init__(self, opt, datadir, dirA='spec', dirB='nospec',imgsize=None):
         super(SpecDataset, self).__init__()
         self.opt = opt
         self.datadir = datadir
         self.dirA = dirA
         self.dirB = dirB
-        self.dirC = dirC
         self.fnsA = sorted(os.listdir(join(datadir,dirA)))
-        #self.fnsB = sorted(os.listdir(join(datadir,dirB)))
-        self.fnsB = self.fnsA
-        # self.fnsC = sorted(os.listdir(join(datadir,dirC)))
+        self.fnsB = self.fnsA  # spec与nospec的文件路径一致
+
         self.imgsize = imgsize
         # np.random.seed(0)
         print('Load {} items in {} ...'.format(len(self.fnsA),datadir))
@@ -26,10 +24,8 @@ class SpecDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         fnA = self.fnsA[index]
         fnB = self.fnsB[index]
-        fnC = self.fnsC[index]
         t_img = cv2.imread(join(self.datadir, self.dirB, fnB))
         m_img = cv2.imread(join(self.datadir, self.dirA, fnA))
-        # score = cv2.imread(join(self.datadir, self.dirC, fnC))
         # print(self.imgsize)
         if np.random.rand() < self.opt.fliplr:
             t_img = cv2.flip(t_img,1)
@@ -41,26 +37,24 @@ class SpecDataset(torch.utils.data.Dataset):
             size = (768,512)
         elif self.imgsize == 'small':
             size = (384,256)
-        # else:
-        #     # size = (m_img.shape[1],m_img.shape[0])
-        #     if m_img.shape[0] < m_img.shape[1]:
-        #         size = (int(256*m_img.shape[1]/m_img.shape[0]),256)
-        #     else:
-        #         size = (256,int(256*m_img.shape[0]/m_img.shape[1]))
-        # if not (m_img.shape[0] == size[1] and m_img.shape[1] == size[0]) and not self.imgsize is None:
-        #     scale = int(math.log2(min(m_img.shape[0]/size[1],m_img.shape[1]/size[0])))
-        #     for i in range(0,scale):
-        #         m_img = cv2.pyrDown(m_img)
-        #         t_img = cv2.pyrDown(t_img)
-        #     if not (m_img.shape[0] == size[1] and m_img.shape[1] == size[0]) or not (t_img.shape[0] == size[1] and t_img.shape[1] == size[0]):
-        #         m_img = cv2.resize(m_img,size,cv2.INTER_AREA)
-        #         t_img = cv2.resize(t_img,size,cv2.INTER_AREA)
+        else:
+            # size = (m_img.shape[1],m_img.shape[0])
+            if m_img.shape[0] < m_img.shape[1]:
+                size = (int(256*m_img.shape[1]/m_img.shape[0]),256)
+            else:
+                size = (256,int(256*m_img.shape[0]/m_img.shape[1]))
+        if not (m_img.shape[0] == size[1] and m_img.shape[1] == size[0]) and not self.imgsize is None:
+            scale = int(math.log2(min(m_img.shape[0]/size[1],m_img.shape[1]/size[0])))
+            for i in range(0,scale):
+                m_img = cv2.pyrDown(m_img)
+                t_img = cv2.pyrDown(t_img)
+            if not (m_img.shape[0] == size[1] and m_img.shape[1] == size[0]) or not (t_img.shape[0] == size[1] and t_img.shape[1] == size[0]):
+                m_img = cv2.resize(m_img,size,cv2.INTER_AREA)
+                t_img = cv2.resize(t_img,size,cv2.INTER_AREA)
 
         t_img = cv2.cvtColor(t_img,cv2.COLOR_BGR2RGB)
         m_img = cv2.cvtColor(m_img,cv2.COLOR_BGR2RGB)
-        # score = cv2.cvtColor(score,cv2.COLOR_BGR2RGB)
 
-        # score = np.transpose(np.float32(score)/255.0,(2,0,1))
         M = np.transpose(np.float32(m_img)/255.0,(2,0,1))
         T = np.transpose(np.float32(t_img)/255.0,(2,0,1))
         delta = M-T
